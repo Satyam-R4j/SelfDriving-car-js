@@ -13,26 +13,41 @@ class Car {
 
         this.damaged = false
 
+        this.useBrain = controlType == "AI"
+
         if (controlType != "DUMMY") {
 
             this.sensor = new Sensor(this)
+            this.brain = new NeuralNetwork([this.sensor.rayCount, 8, 4])
         }
         this.controls = new Controls(controlType)
     }
 
-    update(roadBorders,traffic) {
+    update(roadBorders, traffic) {
         if (!this.damaged) {
             this.#move()
             this.polygon = this.#createPolygon()
-            this.damaged = this.#assessDamage(roadBorders,traffic)
+            this.damaged = this.#assessDamage(roadBorders, traffic)
         }
         if (this.sensor) {
 
-            this.sensor.update(roadBorders,traffic)
+            this.sensor.update(roadBorders, traffic)
+            const offsets = this.sensor.readings.map(
+                s => s == null ? 0 : 1 - s.offset
+            )
+            const outputs = NeuralNetwork.feedForward(offsets, this.brain)
+
+            if (this.useBrain) {
+                this.controls.forward = true
+                this.controls.left = outputs[1]
+                this.controls.right = outputs[2]
+                this.controls.reverse = false
+            }
+
         }
     }
 
-    #assessDamage(roadBorders,traffic ) {
+    #assessDamage(roadBorders, traffic) {
         for (let i = 0; i < roadBorders.length; i++) {
             if (polysIntersect(this.polygon, roadBorders[i])) {
                 return true
@@ -40,10 +55,10 @@ class Car {
 
         }
         for (let i = 0; i < traffic.length; i++) {
-            if (polysIntersect(this.polygon, traffic[i].polygon )) {
+            if (polysIntersect(this.polygon, traffic[i].polygon)) {
                 return true
             }
-            
+
         }
         return false
     }
@@ -101,10 +116,10 @@ class Car {
 
             const flip = this.speed > 0 ? 1 : -1;
             if (this.controls.left) {
-                this.angle += 0.03 * flip
+                this.angle += 0.04 * flip
             }
             if (this.controls.right) {
-                this.angle -= 0.03 * flip
+                this.angle -= 0.04 * flip
             }
         }
 
@@ -112,7 +127,7 @@ class Car {
         this.y -= Math.cos(this.angle) * this.speed
     }
 
-    draw(ctx,color) {
+    draw(ctx, color, drawSensor = false) {
         if (this.damaged) {
             ctx.fillStyle = "gray"
         } else {
@@ -125,8 +140,7 @@ class Car {
         }
         ctx.fill()
 
-        if (this.sensor) {
-
+        if (this.sensor && drawSensor) {
             this.sensor.draw(ctx)
         }
     }

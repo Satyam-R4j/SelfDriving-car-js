@@ -1,22 +1,23 @@
 class Sensor {
     constructor(car) {
         this.car = car
-        this.rayCount = 3
-        this.rayLength = 100
-        this.raySpread = Math.PI / 4
+        this.rayCount = 5
+        this.rayLength = 130
+        this.raySpread = Math.PI / 2.5
+        this.rayWidth = 2
 
         this.rays = []
         this.readings = []
     }
 
     update(roadBorders,traffic) {
-        this.#castRay()
-        this.readings = []
+        this.#castRays();
+        this.readings = [];
         for (let i = 0; i < this.rays.length; i++) {
             this.readings.push(
                 this.#getReading(this.rays[i], roadBorders,traffic)
             )
-        }
+        } 
     }
 
     
@@ -65,7 +66,7 @@ class Sensor {
 
 
     }
-    #castRay() {
+    #castRays() {
         this.rays = []
         for (let i = 0; i < this.rayCount; i++) {
             const rayAngle = lerp(
@@ -92,7 +93,7 @@ class Sensor {
                 end = this.readings[i]
             }
             ctx.beginPath()
-            ctx.lineWidth = 2
+            ctx.lineWidth = this.rayWidth
             ctx.strokeStyle = "yellow"
             ctx.moveTo(
                 this.rays[i][0].x,
@@ -107,7 +108,7 @@ class Sensor {
 
 
             ctx.beginPath()
-            ctx.lineWidth = 2
+            ctx.lineWidth = this.rayWidth
             ctx.strokeStyle = "red"
             ctx.moveTo(
                 this.rays[i][1].x,

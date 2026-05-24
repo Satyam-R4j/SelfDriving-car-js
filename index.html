@@ -10,13 +10,20 @@
 </head>
 
 <body>
-    <canvas id="myCanvas" width="800" height="600"></canvas>
+    <canvas id="carCanvas" width="220"></canvas>
+    <div id="verticalButtons">
+        <button onclick="save()">✅</button>
+        <button onclick="discard()">❌</button>
+
+    </div>
+    <canvas id="networkCanvas" width="400"></canvas>
+    <script src="utils.js"></script>
     <script src="network.js"></script>
     <script src="sensor.js"></script>
-    <script src="utils.js"></script>
     <script src="controls.js"></script>
     <script src="car.js"></script>
     <script src="road.js"></script>
+    <script src="Visualizer.js"></script>
     <script src="script.js"></script>
 </body>
 
